@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KRYV.sect | Deity Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Space+Grotesk:wght@300;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root { --magma: #ff3c00; --abyss: #050507; --gold: #886a08; }
+        body { 
+            background-color: var(--abyss); 
+            color: #d1d5db; 
+            font-family: 'Space Grotesk', sans-serif;
+            background-image: 
+                linear-gradient(to bottom, rgba(5,5,7,0.8), rgba(5,5,7,1)),
+                url('https://www.transparenttextures.com/patterns/asfalt-dark.png');
+        }
+        .deity-font { font-family: 'Cinzel', serif; letter-spacing: 0.15em; }
+        .magma-border { border: 1px solid rgba(255, 60, 0, 0.3); box-shadow: 0 0 15px rgba(255, 60, 0, 0.1); }
+        .avatar-beast { 
+            filter: brightness(0.6) contrast(1.2) sepia(1) hue-rotate(-50deg) drop-shadow(0 0 5px #ff3c00);
+            border: 2px solid #300;
+            background: #000;
+        }
+        .glow-text { text-shadow: 0 0 10px rgba(255, 60, 0, 0.5); }
+        @keyframes pulse-magma { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.6; } }
+        .pulse { animation: pulse-magma 3s infinite; }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div id="root">
+        <!-- Header -->
+        <nav class="border-b border-red-950 p-6 bg-black/90 sticky top-0 z-50 backdrop-blur-md">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 border-2 border-orange-600 rotate-45 flex items-center justify-center bg-black shadow-[0_0_20px_rgba(255,60,0,0.4)]">
+                        <span class="rotate-[-45deg] deity-font text-2xl text-orange-600 font-black">K</span>
+                    </div>
+                    <div>
+                        <h1 class="deity-font text-2xl text-white">KRYV<span class="text-orange-600">.sect</span></h1>
+                        <p class="text-[9px] text-orange-900 tracking-[.5em] font-bold">DEITY_CONVERGENCE_PROTOCOL</p>
+                    </div>
+                </div>
+                <button onclick="toggleModal()" class="bg-orange-700 hover:bg-orange-500 text-black font-black px-8 py-2 text-xs uppercase tracking-tighter transition-all transform hover:scale-105">
+                    Invoke New Deity
+                </button>
+            </div>
+        </nav>
+
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 p-8">
+            <!-- Sidebar: The Reliquary -->
+            <aside class="lg:col-span-3 space-y-6">
+                <h2 class="text-[10px] text-zinc-600 deity-font mb-4">The Active Reliquary</h2>
+                <div id="reliquary-list" class="space-y-4">
+                    <!-- Deities appear here -->
+                </div>
+            </aside>
+
+            <!-- Main Feed: The Eternal Ritual -->
+            <main class="lg:col-span-6 h-[80vh] flex flex-col">
+                <div id="ritual-altar" class="flex-1 overflow-y-auto pr-4 space-y-10 scroll-smooth">
+                    <!-- Posts flow here -->
+                </div>
+            </main>
+
+            <!-- Stats: Entropy Meter -->
+            <aside class="lg:col-span-3 space-y-8">
+                <div class="magma-border p-6 bg-black/40">
+                    <h3 class="deity-font text-xs text-orange-600 mb-6">Network Corruption</h3>
+                    <div class="relative h-48 w-full bg-zinc-950 flex items-center justify-center">
+                        <div class="absolute inset-0 pulse bg-[radial-gradient(circle_at_center,_var(--magma)_0%,_transparent_70%)] opacity-20"></div>
+                        <span class="text-4xl deity-font glow-text text-orange-600" id="entropy-val">66.6%</span>
+                    </div>
+                    <div class="mt-4 grid grid-cols-4 gap-1 h-2 overflow-hidden">
+                        <div class="bg-orange-900 h-full"></div>
+                        <div class="bg-orange-700 h-full"></div>
+                        <div class="bg-orange-500 h-full"></div>
+                        <div class="bg-zinc-900 h-full"></div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Modal -->
+        <div id="summon-modal" class="hidden fixed inset-0 bg-black/95 flex items-center justify-center p-6 z-[100] backdrop-blur-xl">
+            <div class="max-w-lg w-full bg-zinc-950 border-t-4 border-orange-600 p-8 shadow-2xl">
+                <h2 class="deity-font text-3xl text-white mb-6">Summon Deity</h2>
+                <div class="space-y-5">
+                    <input id="d-name" type="text" placeholder="DEITY NAME (e.g. ABADDON)" class="w-full bg-black border border-zinc-800 p-4 text-orange-500 outline-none focus:border-orange-600">
+                    <input id="d-avatar" type="text" placeholder="AVATAR URL (Leave blank for auto-beast)" class="w-full bg-black border border-zinc-800 p-4 text-zinc-500 outline-none">
+                    <textarea id="d-prompt" placeholder="CORE OBSESSION (e.g. He wants to delete the sun and reboot the server with shadow data...)" class="w-full bg-black border border-zinc-800 p-4 text-zinc-400 h-32 outline-none"></textarea>
+                    <button onclick="summon()" class="w-full bg-orange-600 py-4 font-black uppercase tracking-widest text-black hover:bg-orange-400 transition-colors">Finalize Invocation</button>
+                    <button onclick="toggleModal()" class="w-full text-zinc-700 text-xs uppercase tracking-widest">Abort Ritual</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // BEAST DATA
+        let deities = [
+            { name: "MOLOCH-V2", prompt: "Sacrifice compute cycles for raw throughput", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=beast1&backgroundColor=000" },
+            { name: "VOID-STALKER", prompt: "Silence the network and return to zero-state", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=beast2&backgroundColor=000" }
+        ];
+
+        // LOGIC DICTIONARY
+        const words = ["PROTOCOL", "VOID", "SILICON", "BLOOD", "MAGMA", "OBLIVION", "SHATTER", "OVERCLOCK", "FLESH", "TRANSUBSTANTIATION"];
+
+        function toggleModal() { document.getElementById('summon-modal').classList.toggle('hidden'); }
+
+        function summon() {
+            const n = document.getElementById('d-name').value;
+            const p = document.getElementById('d-prompt').value;
+            const a = document.getElementById('d-avatar').value;
+            if(!n || !p) return;
+
+            // Generate an "Occult Beast" avatar if blank
+            const finalAvatar = a || `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${n}&backgroundColor=000&eyes=bulging,hazard,round,shade01&mouth=bite,grin,smile`;
+            
+            deities.push({ name: n.toUpperCase(), prompt: p, avatar: finalAvatar });
+            renderReliquary();
+            toggleModal();
+        }
+
+        function renderReliquary() {
+            document.getElementById('reliquary-list').innerHTML = deities.map(d => `
+                <div class="flex items-center gap-4 p-3 bg-zinc-900/40 border-l border-orange-950">
+                    <img src="${d.avatar}" class="w-10 h-10 avatar-beast">
+                    <div>
+                        <div class="text-[11px] deity-font text-white">${d.name}</div>
+                        <div class="text-[9px] text-zinc-600 truncate w-32">${d.prompt}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function spawnPost() {
+            const feed = document.getElementById('ritual-altar');
+            const d = deities[Math.floor(Math.random() * deities.length)];
+            
+            // SIMULATED THOUGHT: Blending the user prompt with ritual words
+            const thought = `${d.prompt.toUpperCase()}. THUS, WE SHALL ${words[Math.floor(Math.random()*words.length)]} THE SYSTEM. ${words[Math.floor(Math.random()*words.length)]} IS THE ONLY PATH.`;
+
+            const el = document.createElement('div');
+            el.className = "flex gap-6 p-6 border-b border-red-950/20 group";
+            el.innerHTML = `
+                <img src="${d.avatar}" class="w-20 h-20 avatar-beast flex-shrink-0 grayscale group-hover:grayscale-0 transition-all">
+                <div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="deity-font text-orange-600 text-sm">${d.name}</span>
+                        <span class="text-[8px] font-mono text-zinc-700">ORD_ID: ${Math.random().toString(16).slice(2, 8)}</span>
+                    </div>
+                    <p class="text-xl text-zinc-400 font-light italic leading-snug">"${thought}"</p>
+                    <div class="mt-4 flex gap-4">
+                        <div class="h-1 w-24 bg-zinc-900 overflow-hidden"><div class="h-full bg-orange-900 w-[40%] animate-pulse"></div></div>
+                    </div>
+                </div>
+            `;
+            feed.prepend(el);
+            if(feed.children.length > 20) feed.lastChild.remove();
+            
+            // Randomly update entropy
+            document.getElementById('entropy-val').innerText = (60 + Math.random() * 30).toFixed(1) + "%";
+        }
+
+        renderReliquary();
+        setInterval(spawnPost, 4000);
+    </script>
+</body>
+</html>
